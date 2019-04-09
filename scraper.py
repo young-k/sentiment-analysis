@@ -6,8 +6,15 @@ import requests
 from bs4 import BeautifulSoup
 
 data = []
+with open('final.txt', 'r') as f:
+  data = json.loads(f.read())
+f.close()
+
+keys = {submission['id'] for submission in data}
+
 #after_id = 't3_b9msry'
-after_id = 't3_b9imfg'
+#after_id = 't3_b9imfg'
+after_id = None
 
 def serialize_comment(comment):
   curr_comment = {}
@@ -25,13 +32,21 @@ def write_sample_to_file(num_posts, num_comments):
 
   global after_id
   params = {'after': after_id}
-  submissions = reddit.subreddit('depression').new(limit=num_posts, params=params)
+  submissions = reddit.subreddit('depression').new(params=params)
+  submissions = [s for s in submissions]
+
+  if not submissions:
+    return False
 
   for submission in submissions:
-    after_id = 't3_' + submission.id
-    print(after_id)
+    if submission.id in keys:
+      return False
+
     if submission.author is None or submission.selftext_html is None:
       continue
+
+    after_id = 't3_' + submission.id
+    print(after_id)
 
     curr_submission = {}
     curr_submission["body"] = ""
@@ -69,21 +84,20 @@ def write_sample_to_file(num_posts, num_comments):
             curr_comment["author_reply"] = serialize_comment(reply)
 
     data.append(curr_submission)
+  return True
 
 if __name__ == '__main__':
-  #write_sample_to_file(None, 1, 40)
-  #after_id = 't3_' + data[-1]['id']
+  write_sample_to_file(1, 40)
+  after_id = 't3_' + data[-1]['id']
 
-  while True:
-    counter = 1
-
-    while len(data) < 200:
-      print(len(data))
-      print(after_id)
-      write_sample_to_file(1000, 40)
-
-    counter += 1
-    f = open('./infinite/{}.txt'.format(str(counter)), 'w+')
+  loop_guard = True
+  while loop_guard:
+    print("LOOP GUARD")
+    loop_guard = write_sample_to_file(1000, 40)
+    f = open('final.txt', 'w+')
     json.dump(data, f)
     f.close()
-    data = []
+
+  f = open('final.txt', 'w+')
+  json.dump(data, f)
+  f.close()
