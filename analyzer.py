@@ -1,4 +1,5 @@
 import json
+import statistics
 
 with open('authors.txt', 'r') as f:
   authors = json.loads(f.read())
@@ -10,32 +11,30 @@ def get_total_num_posts(authors):
     num_posts += len(author_info)
   return num_posts
 
-def get_average_body_vs(authors):
+def get_body_vs_data(authors):
   '''
   Get average vader sentiment score across all posts.
   '''
-  total_body_vs = 0
-  num_posts = 0
+  body_vs_data = []
 
   for author_id in authors:
     author_info = authors[author_id]
-    num_posts += len(author_info)
     for post in author_info:
       body_vs = post['body_vs'][0]
       compound_vs = body_vs['compound']
-      total_body_vs += compound_vs
+      body_vs_data.append(compound_vs)
   
   # Divide by number of posts to get average sentiment score
-  avg_body_vs = total_body_vs / num_posts
-  return avg_body_vs
+  avg = statistics.mean(body_vs_data)
+  std_dev = statistics.stdev(body_vs_data)
+  return avg, std_dev
 
 def get_slope_info(authors):
   '''
   Get average slope of posts for a user.
   NOTE: We only looks at users that have more than one post.
   '''
-  num_multi_posts_users = 0
-  total_slope = 0
+  slope_data = []
   min_slope = float("inf")
   max_slope = -float("inf")
 
@@ -45,15 +44,15 @@ def get_slope_info(authors):
     if not has_multi_post:
       continue
 
-    num_multi_posts_users += 1
     slope = get_slope(author_info)
+    slope_data.append(slope)
     if slope < min_slope:
       min_slope = slope
     if slope > max_slope:
       max_slope = slope
-    total_slope += slope
-  avg_slope = total_slope / num_multi_posts_users
-  return min_slope, max_slope, avg_slope
+  avg_slope = statistics.mean(slope_data)
+  std_dev_slope = statistics.stdev(slope_data)
+  return min_slope, max_slope, avg_slope, std_dev_slope
 
 def get_slope(author_info):
   # This helper was taken from Stack Overflow: 
@@ -82,8 +81,8 @@ def get_slope(author_info):
 
 
 def get_avg_comment_author(authors):
-  total_comment_vs = 0
-  total_author_vs = 0
+  comment_data = []
+  author_data = []
   for author_id in authors:
     author_info = authors[author_id]
     comment_vs = 0
@@ -99,12 +98,13 @@ def get_avg_comment_author(authors):
         comment_vs /= len(all_comment_vs)
       if len(all_author_vs) > 0:
         author_vs /= len(all_author_vs)
-      total_comment_vs += comment_vs 
-      total_author_vs += author_vs 
-  total_num_posts = get_total_num_posts(authors)
-  avg_comment_vs = total_comment_vs / total_num_posts
-  avg_author_vs = total_author_vs / total_num_posts
-  return avg_comment_vs, avg_author_vs
+      comment_data.append(comment_vs)
+      author_data.append(author_vs)
+  avg_comment_vs = statistics.mean(comment_data)
+  avg_author_vs = statistics.mean(author_data)
+  std_comment_vs = statistics.stdev(comment_data)
+  std_author_vs = statistics.stdev(author_data)
+  return avg_comment_vs, avg_author_vs, std_comment_vs, std_author_vs
 
 
 def get_pos_neu_neg_body(authors):
@@ -123,25 +123,22 @@ def get_pos_neu_neg_body(authors):
         num_neutral += 1
   return num_positive, num_neutral, num_negative
 
-def get_avg_comments_min_max(authors, min_slope, max_slope):
-  range_value = 0.1 
-  num_min_slopes = 0
-  max_min_comments = 0
-  num_max_slopes = 0
-  max_max_comments = 0
+def get_comments_min_max(authors, min_slope, max_slope, std_dev_slope):
+  min_comments_data = []
+  max_comments_data = []
   for author_id in authors:
     author_info = authors[author_id]
     slope = get_slope(author_info)
     max_num_comments = get_max_num_comments(author_info)
-    if slope >= min_slope and slope <= min_slope + range_value:
-      num_min_slopes += 1
-      max_min_comments += max_num_comments
-    elif slope >= max_slope - range_value and slope <= max_slope:
-      num_max_slopes += 1
-      max_max_comments += max_num_comments
-  avg_min_comments = max_min_comments / num_min_slopes
-  avg_max_comments = max_max_comments / num_min_slopes
-  return avg_min_comments, avg_max_comments
+    if slope >= min_slope and slope <= min_slope + std_dev_slope:
+      min_comments_data.append(max_num_comments)
+    elif slope >= max_slope - std_dev_slope and slope <= max_slope:
+      max_comments_data.append(max_num_comments)
+  avg_min_comments = statistics.mean(min_comments_data)
+  avg_max_comments = statistics.mean(max_comments_data)
+  std_dev_min_comments = statistics.stdev(min_comments_data)
+  std_dev_max_comments = statistics.stdev(max_comments_data)
+  return avg_min_comments, avg_max_comments, std_dev_min_comments, std_dev_max_comments
 
 
 def get_max_num_comments(author_info):
@@ -171,26 +168,26 @@ output = []
 total_num_posts = get_total_num_posts(authors)
 output.append('Total Number of posts: {}'.format(total_num_posts))
 
-# Average body vs score over all posts
-avg_body_vs = get_average_body_vs(authors)
-output.append('Average Body VS: {}'.format(avg_body_vs))
+# Body vs score data over all posts
+avg_body_vs, std_dev_body_vs = get_body_vs_data(authors)
+output.append('Average Body VS: {}, Standard Dev Body VS: {}'.format(avg_body_vs, std_dev_body_vs))
 
 # Slope of line of best fit of the body vs score over all of a user's posts
-min_slope, max_slope, avg_slope = get_slope_info(authors)
-output.append('Minimum Slope: {}, Maximum Slope: {}, Average Slope: {}'.format(min_slope, max_slope, avg_slope))
+min_slope, max_slope, avg_slope, std_dev_slope = get_slope_info(authors)
+output.append('Minimum Slope: {}, Maximum Slope: {}, Average Slope: {}, Standard Dev Slope: {}'.format(min_slope, max_slope, avg_slope, std_dev_slope))
 
-# Average comment vs score COMPARED to average author vs score (per post)
-avg_comment_vs, avg_author_vs = get_avg_comment_author(authors)
-output.append('Average Comment VS score: {}, Average Author VS score: {}'.format(avg_comment_vs, avg_author_vs))
+# Comment vs score data COMPARED to author vs score data (per post)
+avg_comment_vs, avg_author_vs, std_comment_vs, std_author_vs = get_avg_comment_author(authors)
+output.append('Average/Standard Dev Comment VS score: {}/{}, Average/Standard Dev Author VS score: {}/{}'.format(avg_comment_vs, std_comment_vs, avg_author_vs, std_author_vs))
 
 # Number of positive body vs scores COMPARED to number of negative body vs scores
 num_positive, num_neutral, num_negative = get_pos_neu_neg_body(authors)
 output.append('Number positive body vs scores: {}, Number neutral body vs scores: {}, Number negative body vs scores: {}'.format(num_positive, num_neutral, num_negative))
 
-# Average number of comments for users with slopes [min_slope, min_slope + 0.1] 
-# COMPARED to Average number of comments for users with slopes [max_slope - 0.1, max_slope]
-avg_min_comments, avg_max_comments = get_avg_comments_min_max(authors, min_slope, max_slope)
-output.append('Average maximum number comments in a post for users with low slopes: {}, Average maximum number comments in a post for users with high slopes: {}'.format(avg_min_comments, avg_max_comments))
+# Number of comments for users with slopes [min_slope, min_slope + std_dev_slope] 
+# COMPARED to number of comments for users with slopes [max_slope -std_dev_slope, max_slope]
+avg_min_comments, avg_max_comments, std_dev_min_comments, std_dev_max_comments = get_comments_min_max(authors, min_slope, max_slope, std_dev_slope)
+output.append('Average/Standard Dev maximum number comments in a post for users with low slopes: {}/{}, Average/Standard Dev maximum number comments in a post for users with high slopes: {}/{}'.format(avg_min_comments, std_dev_min_comments, avg_max_comments, std_dev_max_comments))
 
 f = open('analytics.txt', 'w+')
 for out in output:
