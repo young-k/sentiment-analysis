@@ -3,4 +3,4 @@ Average Body VS: -0.2235250992063493
 Minimum Slope: -1.3233699999999997, Maximum Slope: 1.2636666666666667, Average Slope: -0.20091480182541502
 Average Comment VS score: 0.20498520625426062, Average Author VS score: 0.0851858477051646
 Number positive body vs scores: 733, Number neutral body vs scores: 44, Number negative body vs scores: 1239
-Average number comments for posts with low slopes: 3.9791666666666665, Average number comments for posts with high slopes: 2.083333333333333
+Average maximum number comments in a post for users with low slopes: 11.75, Average maximum number comments in a post for users with high slopes: 4.5

@@ -126,22 +126,32 @@ def get_pos_neu_neg_body(authors):
 def get_avg_comments_min_max(authors, min_slope, max_slope):
   range_value = 0.1 
   num_min_slopes = 0
-  total_min_comments = 0
+  max_min_comments = 0
   num_max_slopes = 0
-  total_max_comments = 0
+  max_max_comments = 0
   for author_id in authors:
     author_info = authors[author_id]
     slope = get_slope(author_info)
-    avg_num_comments = get_avg_num_comments(author_info)
+    max_num_comments = get_max_num_comments(author_info)
     if slope >= min_slope and slope <= min_slope + range_value:
       num_min_slopes += 1
-      total_min_comments += avg_num_comments
+      max_min_comments += max_num_comments
     elif slope >= max_slope - range_value and slope <= max_slope:
       num_max_slopes += 1
-      total_max_comments += avg_num_comments
-  avg_min_comments = total_min_comments / num_min_slopes
-  avg_max_comments = total_max_comments / num_max_slopes
+      max_max_comments += max_num_comments
+  avg_min_comments = max_min_comments / num_min_slopes
+  avg_max_comments = max_max_comments / num_min_slopes
   return avg_min_comments, avg_max_comments
+
+
+def get_max_num_comments(author_info):
+  max_num_comments = 0
+  for post in author_info:
+    num_comments = len(post['all_comment_vs'])
+    if num_comments > max_num_comments:
+      max_num_comments = num_comments
+  return max_num_comments
+
 
 def get_avg_num_comments(author_info):
   num_comments = 0
@@ -180,7 +190,7 @@ output.append('Number positive body vs scores: {}, Number neutral body vs scores
 # Average number of comments for users with slopes [min_slope, min_slope + 0.1] 
 # COMPARED to Average number of comments for users with slopes [max_slope - 0.1, max_slope]
 avg_min_comments, avg_max_comments = get_avg_comments_min_max(authors, min_slope, max_slope)
-output.append('Average number comments for posts with low slopes: {}, Average number comments for posts with high slopes: {}'.format(avg_min_comments, avg_max_comments))
+output.append('Average maximum number comments in a post for users with low slopes: {}, Average maximum number comments in a post for users with high slopes: {}'.format(avg_min_comments, avg_max_comments))
 
 f = open('analytics.txt', 'w+')
 for out in output:
