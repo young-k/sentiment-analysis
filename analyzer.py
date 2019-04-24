@@ -29,11 +29,33 @@ def get_average_body_vs(authors):
   avg_body_vs = total_body_vs / num_posts
   return avg_body_vs
 
-def get_average_slope(authors):
+def get_slope_info(authors):
   '''
   Get average slope of posts for a user.
   NOTE: We only looks at users that have more than one post.
   '''
+  num_multi_posts_users = 0
+  total_slope = 0
+  min_slope = float("inf")
+  max_slope = -float("inf")
+
+  for author_id in authors:
+    author_info = authors[author_id]
+    has_multi_post = len(author_info) > 1 
+    if not has_multi_post:
+      continue
+
+    num_multi_posts_users += 1
+    slope = get_slope(author_info)
+    if slope < min_slope:
+      min_slope = slope
+    if slope > max_slope:
+      max_slope = slope
+    total_slope += slope
+  avg_slope = total_slope / num_multi_posts_users
+  return min_slope, max_slope, avg_slope
+
+def get_slope(author_info):
   # This helper was taken from Stack Overflow: 
   # https://stackoverflow.com/questions/22239691/code-for-best-fit-straight-line-of-a-scatter-plot-in-python
   def best_fit_slope(X, Y):
@@ -47,28 +69,17 @@ def get_average_slope(authors):
       y_intercept = numer / denum
       slope = ybar - y_intercept * xbar
       return slope
-  
-  num_multi_posts_users = 0
-  total_slope = 0
+  X = []
+  Y = []
+  for index, post in enumerate(author_info):
+    body_vs = post['body_vs'][0]
+    compound_vs = body_vs['compound']
+    X.append(index)
+    Y.append(compound_vs)
+  slope = best_fit_slope(X, Y)
+  return slope
 
-  for author_id in authors:
-    author_info = authors[author_id]
-    has_multi_post = len(author_info) > 1 
-    if not has_multi_post:
-      continue
 
-    num_multi_posts_users += 1
-    X = []
-    Y = []
-    for index, post in enumerate(author_info):
-      body_vs = post['body_vs'][0]
-      compound_vs = body_vs['compound']
-      X.append(index)
-      Y.append(compound_vs)
-    slope = best_fit_slope(X, Y)
-    total_slope += slope
-  avg_slope = total_slope / num_multi_posts_users
-  return avg_slope
 
 def get_avg_comment_author(authors):
   total_comment_vs = 0
@@ -112,27 +123,67 @@ def get_pos_neu_neg_body(authors):
         num_neutral += 1
   return num_positive, num_neutral, num_negative
 
+def get_avg_comments_min_max(authors, min_slope, max_slope):
+  range_value = 0.1 
+  num_min_slopes = 0
+  total_min_comments = 0
+  num_max_slopes = 0
+  total_max_comments = 0
+  for author_id in authors:
+    author_info = authors[author_id]
+    slope = get_slope(author_info)
+    avg_num_comments = get_avg_num_comments(author_info)
+    if slope >= min_slope and slope <= min_slope + range_value:
+      num_min_slopes += 1
+      total_min_comments += avg_num_comments
+    elif slope >= max_slope - range_value and slope <= max_slope:
+      num_max_slopes += 1
+      total_max_comments += avg_num_comments
+  avg_min_comments = total_min_comments / num_min_slopes
+  avg_max_comments = total_max_comments / num_max_slopes
+  return avg_min_comments, avg_max_comments
+
+def get_avg_num_comments(author_info):
+  num_comments = 0
+  for post in author_info:
+    num_comments += len(post['all_comment_vs'])
+  num_posts = len(author_info)
+  avg_comments = num_comments / num_posts
+  return avg_comments
+
+###########
+# RESULTS #
+###########
+
+output = []
 
 # Total number of posts
 total_num_posts = get_total_num_posts(authors)
-print('Total Number of posts: {}'.format(total_num_posts))
+output.append('Total Number of posts: {}'.format(total_num_posts))
 
 # Average body vs score over all posts
 avg_body_vs = get_average_body_vs(authors)
-print('Average Body VS: {}'.format(avg_body_vs))
+output.append('Average Body VS: {}'.format(avg_body_vs))
 
 # Slope of line of best fit of the body vs score over all of a user's posts
-avg_slope = get_average_slope(authors)
-print('Average Slope: {}'.format(avg_slope))
+min_slope, max_slope, avg_slope = get_slope_info(authors)
+output.append('Minimum Slope: {}, Maximum Slope: {}, Average Slope: {}'.format(min_slope, max_slope, avg_slope))
 
 # Average comment vs score COMPARED to average author vs score (per post)
 avg_comment_vs, avg_author_vs = get_avg_comment_author(authors)
-print('Average Comment VS score: {}, Average Author VS score: {}'.format(avg_comment_vs, avg_author_vs))
+output.append('Average Comment VS score: {}, Average Author VS score: {}'.format(avg_comment_vs, avg_author_vs))
 
 # Number of positive body vs scores COMPARED to number of negative body vs scores
 num_positive, num_neutral, num_negative = get_pos_neu_neg_body(authors)
-print('Number positive body vs scores: {}, Number neutral body vs scores: {}, Number negative body vs scores: {}'.format(num_positive, num_neutral, num_negative))
+output.append('Number positive body vs scores: {}, Number neutral body vs scores: {}, Number negative body vs scores: {}'.format(num_positive, num_neutral, num_negative))
 
-#f = open('authors.txt', 'w+')
-#json.dump(authors, f)
-#f.close()
+# Average number of comments for users with slopes [min_slope, min_slope + 0.1] 
+# COMPARED to Average number of comments for users with slopes [max_slope - 0.1, max_slope]
+avg_min_comments, avg_max_comments = get_avg_comments_min_max(authors, min_slope, max_slope)
+output.append('Average number comments for posts with low slopes: {}, Average number comments for posts with high slopes: {}'.format(avg_min_comments, avg_max_comments))
+
+f = open('analytics.txt', 'w+')
+for out in output:
+  print(out)
+  f.write('{}\n'.format(out))
+f.close()
