@@ -5,6 +5,7 @@ certifi==2019.3.9
 chardet==3.0.4
 idna==2.8
 lxml==4.3.3
+matplotlib==3.0.3
 praw==6.1.1
 prawcore==1.0.1
 requests==2.21.0

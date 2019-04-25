@@ -1,6 +1,8 @@
 import json
 import statistics
 
+import matplotlib.pyplot as plt
+
 with open('authors.txt', 'r') as f:
   authors = json.loads(f.read())
 
@@ -10,6 +12,7 @@ def get_total_num_posts(authors):
     author_info = authors[author_id]
     num_posts += len(author_info)
   return num_posts
+
 
 def get_body_vs_data(authors):
   '''
@@ -28,6 +31,7 @@ def get_body_vs_data(authors):
   avg = statistics.mean(body_vs_data)
   std_dev = statistics.stdev(body_vs_data)
   return avg, std_dev
+
 
 def get_slope_info(authors):
   '''
@@ -54,6 +58,7 @@ def get_slope_info(authors):
   std_dev_slope = statistics.stdev(slope_data)
   return min_slope, max_slope, avg_slope, std_dev_slope
 
+
 def get_slope(author_info):
   # This helper was taken from Stack Overflow: 
   # https://stackoverflow.com/questions/22239691/code-for-best-fit-straight-line-of-a-scatter-plot-in-python
@@ -77,7 +82,6 @@ def get_slope(author_info):
     Y.append(compound_vs)
   slope = best_fit_slope(X, Y)
   return slope
-
 
 
 def get_avg_comment_author(authors):
@@ -122,6 +126,7 @@ def get_pos_neu_neg_body(authors):
       else:
         num_neutral += 1
   return num_positive, num_neutral, num_negative
+
 
 def get_comments_min_max(authors, min_slope, max_slope, std_dev_slope):
   min_comments_data = []
