@@ -1,6 +1,0 @@
-Total Number of posts: 2387
-Average Body VS: -0.22631503979891077, Standard Dev Body VS: 0.7303800838795802
-Minimum Slope: -1.3137333333333334, Maximum Slope: 1.2667333333333333, Average Slope: -0.2130421868603946, Standard Dev Slope: 0.7171828274611091
-Average/Standard Dev Comment VS score: 0.21091275737557705/0.5285903944902016, Average/Standard Dev Author VS score: 0.09635521715208537/0.4031864201758637
-Number positive body vs scores: 867, Number neutral body vs scores: 51, Number negative body vs scores: 1469
-Average/Standard Dev maximum number comments in a post for users with low slopes: 5.593667546174142/7.331425581957797, Average/Standard Dev maximum number comments in a post for users with high slopes: 5.231155778894473/7.12775441502181
