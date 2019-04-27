@@ -147,19 +147,63 @@ def get_comments_min_max(authors, min_slope, max_slope, std_dev_slope):
 def get_max_num_comments(author_info):
   max_num_comments = 0
   for post in author_info:
-    num_comments = len(post['all_comment_vs'])
+    num_comments = len(post['all_comment_vs']) + len(post['all_author_vs'])
     if num_comments > max_num_comments:
       max_num_comments = num_comments
   return max_num_comments
 
 
 def get_avg_num_comments(author_info):
-  num_comments = 0
+  num_comments = []
   for post in author_info:
-    num_comments += len(post['all_comment_vs'])
-  num_posts = len(author_info)
-  avg_comments = num_comments / num_posts
+    num_comments.append(len(post['all_comment_vs']) + len(post['all_author_vs']))
+  avg_comments = statistics.mean(num_comments)
   return avg_comments
+
+def get_comments_per_post(authors):
+  num_comments = []
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      num_comments.append(len(post['all_comment_vs']) + len(post['all_author_vs']))
+  avg_comments = statistics.mean(num_comments)
+  std_dev_comments = statistics.stdev(num_comments)
+  return avg_comments, std_dev_comments
+
+def get_comments_per_post_wo_zero(authors):
+  num_comments = []
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      num_comment = len(post['all_comment_vs']) + len(post['all_author_vs'])
+      if num_comment > 0:
+        num_comments.append(num_comment)
+  avg_comments = statistics.mean(num_comments)
+  std_dev_comments = statistics.stdev(num_comments)
+  return avg_comments, std_dev_comments
+
+def get_user_comments(authors):
+  user_comments = []
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      user_comments.append(len(post['all_author_vs']))
+  avg_user_comments = statistics.mean(user_comments)
+  std_dev_user_comments = statistics.stdev(user_comments)
+  return avg_user_comments, std_dev_user_comments
+
+def get_user_comments_wo_zero(authors):
+  user_comments = []
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      num_user_comment = len(post['all_author_vs'])
+      if num_user_comment > 0:
+        user_comments.append(num_user_comment)
+  avg_user_comments = statistics.mean(user_comments)
+  std_dev_user_comments = statistics.stdev(user_comments)
+  return avg_user_comments, std_dev_user_comments
+
 
 ###########
 # RESULTS #
@@ -191,6 +235,18 @@ output.append('Number positive body vs scores: {}, Number neutral body vs scores
 # COMPARED to number of comments for users with slopes [max_slope -std_dev_slope, max_slope]
 avg_min_comments, avg_max_comments, std_dev_min_comments, std_dev_max_comments = get_comments_min_max(authors, min_slope, max_slope, std_dev_slope)
 output.append('Average/Standard Dev maximum number comments in a post for users with low slopes: {}/{}, Average/Standard Dev maximum number comments in a post for users with high slopes: {}/{}'.format(avg_min_comments, std_dev_min_comments, avg_max_comments, std_dev_max_comments))
+
+avg_comments_per_post, std_dev_comments_per_post = get_comments_per_post(authors)
+output.append('Average/Std Dev num comments per post: {}, {}'.format(avg_comments_per_post, std_dev_comments_per_post))
+
+avg_comments_per_post_wo_zero, std_dev_comments_per_post_wo_zero = get_comments_per_post_wo_zero(authors)
+output.append('Average/Std Dev num comments per post without zero: {}, {}'.format(avg_comments_per_post_wo_zero, std_dev_comments_per_post_wo_zero))
+
+avg_user_comments, std_dev_user_comments = get_user_comments(authors)
+output.append('Average/Std Dev num user comments on their own post: {}, {}'.format(avg_user_comments, std_dev_user_comments))
+
+avg_user_comments_wo_zero, std_dev_user_comments_wo_zero = get_user_comments_wo_zero(authors)
+output.append('Average/Std Dev num user comments on their own post without zero: {}, {}'.format(avg_user_comments_wo_zero, std_dev_user_comments_wo_zero))
 
 f = open('authors_analytics.txt', 'w+')
 for out in output:
