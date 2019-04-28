@@ -3,12 +3,10 @@ from collections import defaultdict
 import json
 import statistics
 
+import graphs
+
 with open('final.txt', 'r') as f:
   final = json.loads(f.read())
-
-print(final[0].keys())
-print(final[0]['upvote_ratio'])
-
 
 def get_posts_per_day(final):
   day_posts = defaultdict(int)
@@ -21,7 +19,13 @@ def get_posts_per_day(final):
   num_posts = day_posts.values()
   avg_num_posts = statistics.mean(num_posts)
   std_dev_num_posts = statistics.stdev(num_posts)
+  # plot_posts_per_day(day_posts)
   return avg_num_posts, std_dev_num_posts
+
+def plot_posts_per_day(day_posts):
+  X = list(range(len(day_posts)))
+  Y = list(day_posts.values())
+  graphs.plot_bar_graph(X, Y, 'Number of Posts Per Day')
 
 def get_posts_per_user(final):
   user_posts = defaultdict(int)

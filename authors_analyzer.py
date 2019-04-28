@@ -1,6 +1,9 @@
 import json
 import statistics
 
+import plotly.plotly as py
+import plotly.graph_objs as go
+
 with open('authors.txt', 'r') as f:
   authors = json.loads(f.read())
 
