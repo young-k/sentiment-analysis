@@ -1,6 +1,8 @@
+from collections import defaultdict
 import json
 import statistics
 
+import graphs
 import plotly.plotly as py
 import plotly.graph_objs as go
 
@@ -206,6 +208,109 @@ def get_user_comments_wo_zero(authors):
   avg_user_comments = statistics.mean(user_comments)
   std_dev_user_comments = statistics.stdev(user_comments)
   return avg_user_comments, std_dev_user_comments
+
+############
+#  GRAPHS  #
+############
+
+def plot_author_vs_num_comments(authors):
+  info = defaultdict(list)
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      all_author_vs = post['all_author_vs']
+      num_comments = len(post['all_comment_vs']) + len(all_author_vs)
+      for author_vs in all_author_vs:
+        info[num_comments].append(author_vs['compound'])
+  X = []
+  Y = []
+  for num_comments in info:
+    X.append(num_comments)
+    Y.append(statistics.mean(info[num_comments]))
+  graphs.plot_scatter_graph(X, Y, 'Author vs score VS Number of comments')
+
+def plot_body_vs_num_comments(authors):
+  info = defaultdict(list)
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      body_compound = post['body_vs'][0]['compound']
+      num_comments = len(post['all_comment_vs']) + len(post['all_author_vs'])
+      info[num_comments].append(body_compound)
+  X = []
+  Y = []
+  for num_comments in info:
+    X.append(num_comments)
+    Y.append(statistics.mean(info[num_comments]))
+  graphs.plot_scatter_graph(X, Y, 'Author body score VS Number of comments')
+
+def plot_author_vs_comment_vs(authors):
+  info = defaultdict(list)
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      all_comment_vs = []
+      for comment_vs in post['all_comment_vs']:
+        all_comment_vs.append(comment_vs['compound'])
+      if len(all_comment_vs) > 0:
+        avg_comment_vs = statistics.mean(all_comment_vs)
+        all_author_vs = post['all_author_vs']
+        for author_vs in all_author_vs:
+          info[avg_comment_vs].append(author_vs['compound'])
+  X = []
+  Y = []
+  for avg_comment_vs in info:
+    X.append(avg_comment_vs)
+    Y.append(statistics.mean(info[avg_comment_vs]))
+  graphs.plot_scatter_graph(X, Y, 'Author vs score VS Average comment vs score', lines=False)
+
+def plot_author_vs_comment_vs(authors):
+  info = defaultdict(list)
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      all_comment_vs = []
+      for comment_vs in post['all_comment_vs']:
+        all_comment_vs.append(comment_vs['compound'])
+      if len(all_comment_vs) > 0:
+        avg_comment_vs = round_nearest(statistics.mean(all_comment_vs), 0.05)
+        all_author_vs = post['all_author_vs']
+        for author_vs in all_author_vs:
+          info[avg_comment_vs].append(author_vs['compound'])
+  X = []
+  Y = []
+  for avg_comment_vs in info:
+    X.append(avg_comment_vs)
+    Y.append(statistics.mean(info[avg_comment_vs]))
+  graphs.plot_scatter_graph(X, Y, 'Author vs score VS Average comment vs score', lines=False)
+
+def plot_body_vs_comment_vs(authors):
+  info = defaultdict(list)
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      all_comment_vs = []
+      for comment_vs in post['all_comment_vs']:
+        all_comment_vs.append(comment_vs['compound'])
+      if len(all_comment_vs) > 0:
+        avg_comment_vs = round_nearest(statistics.mean(all_comment_vs), 0.05)
+        body_vs = post['body_vs'][0]['compound']
+        info[avg_comment_vs].append(body_vs)
+  X = []
+  Y = []
+  for avg_comment_vs in info:
+    X.append(avg_comment_vs)
+    Y.append(statistics.mean(info[avg_comment_vs]))
+  graphs.plot_scatter_graph(X, Y, 'Body vs score VS Average comment vs score', lines=False)
+
+def round_nearest(x, a):
+  return round(x / a) * a
+
+# Uncomment the line below to get the desired graph
+#plot_author_vs_num_comments(authors)
+#plot_body_vs_num_comments(authors)
+plot_author_vs_comment_vs(authors)
+#plot_body_vs_comment_vs(authors)
 
 
 ###########

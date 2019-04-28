@@ -14,3 +14,18 @@ def plot_bar_graph(x, y, title):
   filename = title.replace(' ', '_').lower()
   py.plot(figure, filename=filename)
 
+def plot_scatter_graph(x, y, title, lines=True):
+  if lines:
+    mode = 'lines+markers'
+  else:
+    mode = 'markers'
+  scatter = go.Scatter(
+    x=x,
+    y=y,
+    mode=mode,
+  )
+  data = [scatter]
+  layout = go.Layout(title=title)
+  figure = go.Figure(data=data, layout=layout)
+  filename = title.replace(' ', '_').lower()
+  py.plot(figure, filename=filename)

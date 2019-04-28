@@ -2,3 +2,4 @@ venv
 testing.txt
 __pycache__/
 .env
+*.swp
