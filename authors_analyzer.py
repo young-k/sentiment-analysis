@@ -307,10 +307,10 @@ def round_nearest(x, a):
   return round(x / a) * a
 
 # Uncomment the line below to get the desired graph
-#plot_author_vs_num_comments(authors)
-#plot_body_vs_num_comments(authors)
+plot_author_vs_num_comments(authors)
+plot_body_vs_num_comments(authors)
 plot_author_vs_comment_vs(authors)
-#plot_body_vs_comment_vs(authors)
+plot_body_vs_comment_vs(authors)
 
 
 ###########

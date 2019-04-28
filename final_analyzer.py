@@ -19,13 +19,7 @@ def get_posts_per_day(final):
   num_posts = day_posts.values()
   avg_num_posts = statistics.mean(num_posts)
   std_dev_num_posts = statistics.stdev(num_posts)
-  # plot_posts_per_day(day_posts)
   return avg_num_posts, std_dev_num_posts
-
-def plot_posts_per_day(day_posts):
-  X = list(range(len(day_posts)))
-  Y = list(day_posts.values())
-  graphs.plot_bar_graph(X, Y, 'Number of Posts Per Day')
 
 def get_posts_per_user(final):
   user_posts = defaultdict(int)
@@ -48,6 +42,23 @@ def get_upvote_ratio(final):
   std_dev_upvote = statistics.stdev(upvote_ratio)
   return avg_upvote, std_dev_upvote
 
+############
+#  GRAPHS  #
+############
+
+def plot_posts_per_day(final):
+  day_posts = defaultdict(int)
+  for post in final:
+    created_utc = post['created_utc']
+    created_date = datetime.utcfromtimestamp(created_utc)
+    month_day = '{},{}'.format(created_date.month, created_date.day)
+    day_posts[month_day] += 1
+  X = list(range(len(day_posts)))
+  Y = list(day_posts.values())
+  graphs.plot_bar_graph(X, Y, 'Number of Posts Per Day')
+
+# Uncomment the following lines to generate each graph
+plot_posts_per_day(final)
 
 ###########
 # RESULTS #

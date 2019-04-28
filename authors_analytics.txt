@@ -1,10 +1,10 @@
-Total Number of posts: 2387
-Average Body VS: -0.22631503979891077, Standard Dev Body VS: 0.7303800838795802
-Minimum Slope: -1.3137333333333334, Maximum Slope: 1.2667333333333333, Average Slope: -0.2130421868603946, Standard Dev Slope: 0.7171828274611091
-Average/Standard Dev Comment VS score: 0.21091275737557705/0.5285903944902016, Average/Standard Dev Author VS score: 0.09635521715208537/0.4031864201758637
-Number positive body vs scores: 867, Number neutral body vs scores: 51, Number negative body vs scores: 1469
-Average/Standard Dev maximum number comments in a post for users with low slopes: 6.852242744063324/8.76255344294061, Average/Standard Dev maximum number comments in a post for users with high slopes: 6.5879396984924625/9.238755397199053
-Average/Std Dev num comments per post: 3.744030163385002, 6.623214856356158
-Average/Std Dev num comments per post without zero: 5.492931776275354, 7.399871542194236
-Average/Std Dev num user comments on their own post: 0.6619187264348555, 1.6007867423755582
-Average/Std Dev num user comments on their own post without zero: 2.2222222222222223, 2.2669980426095693
+Total Number of posts: 3100
+Average Body VS: -0.22898812903225807, Standard Dev Body VS: 0.7317431553728582
+Minimum Slope: -1.3927964285714285, Maximum Slope: 1.2667333333333333, Average Slope: -0.22439556823641071, Standard Dev Slope: 0.7156430696152285
+Average/Standard Dev Comment VS score: 0.20872862076062335/0.5121478482613789, Average/Standard Dev Author VS score: 0.10964158907940895/0.40394993024021963
+Number positive body vs scores: 1118, Number neutral body vs scores: 63, Number negative body vs scores: 1919
+Average/Standard Dev maximum number comments in a post for users with low slopes: 6.511363636363637/8.3831840550972, Average/Standard Dev maximum number comments in a post for users with high slopes: 6.349593495934959/9.067082189211515
+Average/Std Dev num comments per post: 3.758709677419355, 6.67281536809315
+Average/Std Dev num comments per post without zero: 5.538022813688213, 7.466996911689127
+Average/Std Dev num user comments on their own post: 0.6674193548387096, 1.6000674956357612
+Average/Std Dev num user comments on their own post without zero: 2.251360174102285, 2.252313214137356
