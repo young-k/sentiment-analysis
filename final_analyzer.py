@@ -55,7 +55,8 @@ def plot_posts_per_day(final):
     day_posts[month_day] += 1
   X = list(range(len(day_posts)))
   Y = list(day_posts.values())
-  graphs.plot_bar_graph(X, Y, 'Number of Posts Per Day')
+  print(Y)
+  #graphs.plot_bar_graph(X, Y, 'Number of Posts Per Day')
 
 # Uncomment the following lines to generate each graph
 plot_posts_per_day(final)
@@ -65,6 +66,9 @@ plot_posts_per_day(final)
 ###########
 
 output = []
+
+total_num_posts = len(final)
+output.append('Total number of posts: {}'.format(total_num_posts))
 
 avg_num_posts_per_day, std_dev_num_posts_per_day = get_posts_per_day(final)
 output.append('Average/Std Dev number of posts per day: {}, {}'.format(avg_num_posts_per_day, std_dev_num_posts_per_day))

@@ -1,3 +1,4 @@
+Total number of posts: 9813
 Average/Std Dev number of posts per day: 446.04545454545456, 90.11235171016197
 Average/Std Dev/Max/Min number of posts per user: 1.2561443932411673, 1.0306067056267436, 44, 1
 Average/Std Dev upvote ratio: 0.9423672679099154, 0.11767966131479113

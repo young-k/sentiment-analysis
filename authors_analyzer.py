@@ -3,6 +3,7 @@ import json
 import statistics
 
 import graphs
+from scipy.stats import linregress
 import plotly.plotly as py
 import plotly.graph_objs as go
 
@@ -213,6 +214,13 @@ def get_user_comments_wo_zero(authors):
 #  GRAPHS  #
 ############
 
+def print_linear_regression(X, Y, title):
+  linear = linregress(X, Y)
+  rval = linear.rvalue
+  pval = linear.pvalue
+  print('[Linear Regression for {}] r-value: {}, r-squared: {}, p-value: {}'.format(title, rval, rval**2, pval))
+
+
 def plot_author_vs_num_comments(authors):
   info = defaultdict(list)
   for author_id in authors:
@@ -227,7 +235,9 @@ def plot_author_vs_num_comments(authors):
   for num_comments in info:
     X.append(num_comments)
     Y.append(statistics.mean(info[num_comments]))
-  graphs.plot_scatter_graph(X, Y, 'Author vs score VS Number of comments')
+  title = 'Author vs score VS Number of comments'
+  print_linear_regression(X, Y, title)
+  #graphs.plot_scatter_graph(X, Y, title)
 
 def plot_body_vs_num_comments(authors):
   info = defaultdict(list)
@@ -242,7 +252,9 @@ def plot_body_vs_num_comments(authors):
   for num_comments in info:
     X.append(num_comments)
     Y.append(statistics.mean(info[num_comments]))
-  graphs.plot_scatter_graph(X, Y, 'Author body score VS Number of comments')
+  title = 'Author body score VS Number of comments'
+  print_linear_regression(X, Y, title)
+  #graphs.plot_scatter_graph(X, Y, title)
 
 def plot_author_vs_comment_vs(authors):
   info = defaultdict(list)
@@ -262,7 +274,9 @@ def plot_author_vs_comment_vs(authors):
   for avg_comment_vs in info:
     X.append(avg_comment_vs)
     Y.append(statistics.mean(info[avg_comment_vs]))
-  graphs.plot_scatter_graph(X, Y, 'Author vs score VS Average comment vs score', lines=False)
+  title = 'Author vs score VS Average comment vs score'
+  print_linear_regression(X, Y, title)
+  #graphs.plot_scatter_graph(X, Y, title, lines=False)
 
 def plot_author_vs_comment_vs(authors):
   info = defaultdict(list)
@@ -282,7 +296,9 @@ def plot_author_vs_comment_vs(authors):
   for avg_comment_vs in info:
     X.append(avg_comment_vs)
     Y.append(statistics.mean(info[avg_comment_vs]))
-  graphs.plot_scatter_graph(X, Y, 'Author vs score VS Average comment vs score', lines=False)
+  title = 'Author vs score VS Average comment vs score'
+  print_linear_regression(X, Y, title)
+  #graphs.plot_scatter_graph(X, Y, 'Author vs score VS Average comment vs score', lines=False)
 
 def plot_body_vs_comment_vs(authors):
   info = defaultdict(list)
@@ -299,18 +315,59 @@ def plot_body_vs_comment_vs(authors):
   X = []
   Y = []
   for avg_comment_vs in info:
-    X.append(avg_comment_vs)
-    Y.append(statistics.mean(info[avg_comment_vs]))
-  graphs.plot_scatter_graph(X, Y, 'Body vs score VS Average comment vs score', lines=False)
+    X.append(statistics.mean(info[avg_comment_vs]))
+    Y.append(avg_comment_vs)
+  title = 'Average comment vs score VS Body vs score'
+  print_linear_regression(X, Y, title)
+  graphs.plot_scatter_graph(X, Y, title, lines=False)
+
+def plot_slope_info(authors):
+  '''
+  Get average slope of posts for a user.
+  NOTE: We only looks at users that have more than one post.
+  '''
+  slope_data = []
+  slope_dict = defaultdict(int)
+
+  for author_id in authors:
+    author_info = authors[author_id]
+    has_multi_post = len(author_info) > 1 
+    if not has_multi_post:
+      continue
+
+    slope = round_nearest(get_slope(author_info), 0.05)
+    slope_dict[slope] += 1
+    slope_data.append(slope)
+  avg_slope = statistics.mean(slope_data)
+  std_dev_slope = statistics.stdev(slope_data)
+  X = list(slope_dict.keys())
+  Y = list(slope_dict.values())
+  title = 'Frequency VS Slopes in Sentiment'
+  graphs.plot_bar_graph(X, Y, title)
+
+def plot_comment_sentiment(authors):
+  info = defaultdict(int)
+  for author_id in authors:
+    author_info = authors[author_id]
+    for post in author_info:
+      for comment_vs in post['all_comment_vs']:
+        comment_compound = round_nearest(comment_vs['compound'], 0.05)
+        info[comment_compound] += 1
+  X = list(info.keys())
+  Y = list(info.values())
+  title = 'Frequency VS Comment Sentiment'
+  graphs.plot_bar_graph(X, Y, title)
 
 def round_nearest(x, a):
   return round(x / a) * a
 
 # Uncomment the line below to get the desired graph
-plot_author_vs_num_comments(authors)
-plot_body_vs_num_comments(authors)
-plot_author_vs_comment_vs(authors)
+#plot_author_vs_num_comments(authors)
+#plot_body_vs_num_comments(authors)
+#plot_author_vs_comment_vs(authors)
 plot_body_vs_comment_vs(authors)
+#plot_slope_info(authors)
+#plot_comment_sentiment(authors)
 
 
 ###########
